@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Box, 
   Flex, 
@@ -17,11 +17,32 @@ import surveyData from '../data/survey.json';
 
 const Survey = () => {
   const [formData, setFormData] = useState({});
+  const [openEndedResponses, setOpenEndedResponses] = useState({});
   const [pageIndex, setPageIndex] = useState(0);
   const [direction, setDirection] = useState('next');
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const extractOpenEndedResponses = useCallback(() => {
+    const openEnded = {};
+    surveyData.pages.forEach(page => {
+      page.elements.forEach(element => {
+        if (element.type === 'text') {
+          const response = formData[page.name]?.[element.name];
+          openEnded[`${page.name}_${element.name}`] = {
+            question: element.title,
+            answer: response && response.trim() !== '' ? response : "Not Provided by user"
+          };
+        }
+      });
+    });
+    setOpenEndedResponses(openEnded);
+  }, [formData]);
   
+
+  useEffect(() => {
+    extractOpenEndedResponses();
+  }, [extractOpenEndedResponses]);
 
   const handleInputChange = (page, element, value) => {
     setFormData(prevData => ({
@@ -46,13 +67,25 @@ const Survey = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     setResponse('');
+
+    // Log the final open-ended responses before submission
+    console.log(JSON.stringify({ openEndedResponses }));
+
+    // Check if there are any open-ended responses
+    if (Object.keys(openEndedResponses).length === 0) {
+      console.log("No open-ended questions found in the survey.");
+      setResponse("No open-ended questions were found in the survey.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ formData }),
+        body: JSON.stringify({ openEndedResponses }),
       });
 
       if (!res.ok) {
@@ -157,7 +190,7 @@ const Survey = () => {
 
   const renderPage = (page) => {
     return (
-      <Box>
+      <Box p='4'>
         <Text as="h2" size="6" mb="3">{page.title}</Text>
         <Text as="p" size="3">{page.description}</Text>
         <Separator mt="3" mb='5' size="4" />
@@ -189,7 +222,7 @@ const Survey = () => {
           </Box>
         </Flex>
         {(isLoading || response) && (
-          <Box mt="4">
+          <Box p="4">
             <Text as="h3" size="5" mb="2">AI Response:</Text>
             {isLoading ? (
               <Text size="3">Generating response...</Text>
