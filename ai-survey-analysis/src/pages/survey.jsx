@@ -29,7 +29,7 @@ const Survey = () => {
       page.elements.forEach(element => {
         if (element.type === 'text') {
           const response = formData[page.name]?.[element.name];
-          openEnded[`${page.name}_${element.name}`] = {
+          openEnded[`${element.name}`] = {
             question: element.title,
             answer: response && response.trim() !== '' ? response : "Not Provided by user"
           };
@@ -69,7 +69,7 @@ const Survey = () => {
     setResponse('');
 
     // Log the final open-ended responses before submission
-    console.log(JSON.stringify({ openEndedResponses }));
+    console.log("Open-ended responses:", JSON.stringify(openEndedResponses, null, 2));
 
     // Check if there are any open-ended responses
     if (Object.keys(openEndedResponses).length === 0) {
@@ -79,13 +79,25 @@ const Survey = () => {
       return;
     }
 
+    // Construct the prompt
+    const prompt = `Analyze this data: ${JSON.stringify(openEndedResponses)}
+    
+    For each open-ended response, provide the following analysis:
+    1. Summary: A short summary of the answer.
+    2. Sentiment analysis: "Positive", "Neutral" or "Negative"
+    3. Topic Category: Categorize the open-ended answer into a main topic. e.g. "Work Environment complaints"
+    4. Action recommendation: One-sentence suggestion to solve the problem mentioned or improve the situation/effect in the answer.`;
+
+    // Log the entire prompt
+    console.log("Full prompt being sent to OpenAI:", prompt);
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ openEndedResponses }),
+        body: JSON.stringify({ prompt }),
       });
 
       if (!res.ok) {

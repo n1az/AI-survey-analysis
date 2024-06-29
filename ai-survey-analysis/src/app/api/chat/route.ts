@@ -5,18 +5,20 @@ import { streamText } from 'ai';
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { formData } = await req.json();
+  const { prompt } = await req.json();
+
+  console.log("Received prompt:", prompt);
 
   const { textStream } = await streamText({
     model: openai('gpt-4-turbo'),
     messages: [
-      { 
-        role: "system", 
-        content: "You are a helpful assistant analyzing survey responses." 
+      {
+        role: "system",
+        content: "You are a helpful assistant analyzing open-ended questions from survey responses."
       },
-      { 
-        role: "user", 
-        content: `Analyze this survey data and provide insights: ${JSON.stringify(formData)}` 
+      {
+        role: "user",
+        content: prompt
       }
     ],
   });
