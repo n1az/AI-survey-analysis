@@ -7,8 +7,6 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const { prompt } = await req.json();
 
-  console.log("Received prompt:", prompt);
-
   const { textStream } = await streamText({
     model: openai('gpt-4-turbo'),
     messages: [
