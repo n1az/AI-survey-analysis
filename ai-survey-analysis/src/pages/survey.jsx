@@ -19,6 +19,9 @@ const Survey = () => {
   const [formData, setFormData] = useState({});
   const [pageIndex, setPageIndex] = useState(0);
   const [direction, setDirection] = useState('next');
+  const [response, setResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
 
   const handleInputChange = (page, element, value) => {
     setFormData(prevData => ({
@@ -40,9 +43,37 @@ const Survey = () => {
     setPageIndex(prev => Math.max(prev - 1, 0));
   };
 
-  const handleSubmit = () => {
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setResponse('');
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ formData }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to submit form');
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        setResponse(prev => prev + chunk);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setResponse('An error occurred while processing your request.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderElement = (element) => {
@@ -140,32 +171,37 @@ const Survey = () => {
   return (
     <Container mt='8' size="2" height="60vh" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Card p='4' align='center' style={{ width: '100%', maxWidth: '700px', justifyContent: 'center' }}>
-        <Box p='4'
-          style={{
-            transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
-            opacity: 1,
-            transform: 'translateX(0)',
-          }}
-        >
-          {renderPage(surveyData.pages[pageIndex])}
-        </Box>
+        {renderPage(surveyData.pages[pageIndex])}
         <Flex gap="3" p='4' justify="between">
           <Box>
             {pageIndex > 0 && (
-              <Button onClick={handlePrevious}>Previous</Button>
+              <Button variant="surface" onClick={handlePrevious}>Previous</Button>
             )}
           </Box>
           <Box>
             {pageIndex < surveyData.pages.length - 1 ? (
-              <Button onClick={handleNext}>Next</Button>
+              <Button variant="surface" onClick={handleNext}>Next</Button>
             ) : (
-              <Button onClick={handleSubmit}>Submit</Button>
+              <Button variant="surface" onClick={handleSubmit} disabled={isLoading}>
+                {isLoading ? 'Submitting...' : 'Submit'}
+              </Button>
             )}
           </Box>
         </Flex>
+        {(isLoading || response) && (
+          <Box mt="4">
+            <Text as="h3" size="5" mb="2">AI Response:</Text>
+            {isLoading ? (
+              <Text size="3">Generating response...</Text>
+            ) : (
+              <Text size="3">{response}</Text>
+            )}
+          </Box>
+        )}
       </Card>
     </Container>
   );
 };
 
 export default Survey;
+
