@@ -1,0 +1,336 @@
+{
+    "pages": [
+      {
+        "name": "page1",
+        "title": "Job Satisfaction",
+        "elements": [
+          {
+            "name": "job_satisfaction",
+            "type": "rating",
+            "title": "How satisfied are you with your current job?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your overall job satisfaction.",
+            "maxRateDescription": "Very Satisfied",
+            "minRateDescription": "Very Dissatisfied"
+          },
+          {
+            "name": "work_life_balance",
+            "type": "rating",
+            "title": "How would you rate your work-life balance?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your satisfaction with your work-life balance.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "job_role_satisfaction",
+            "type": "dropdown",
+            "title": "How satisfied are you with your job role?",
+            "choices": [
+              "Very Dissatisfied",
+              "Dissatisfied",
+              "Neutral",
+              "Satisfied",
+              "Very Satisfied"
+            ],
+            "inputType": "text",
+            "isRequired": true,
+            "description": "Select your level of satisfaction with your job role."
+          },
+          {
+            "name": "recommend_company",
+            "type": "boolean",
+            "title": "Would you recommend this company to a friend?",
+            "inputType": "text",
+            "labelTrue": "Yes",
+            "isRequired": true,
+            "labelFalse": "No",
+            "description": "Indicate whether you would recommend this company to a friend."
+          },
+          {
+            "name": "improvement_suggestions",
+            "type": "text",
+            "title": "Do you have any suggestions for improving job satisfaction?",
+            "inputType": "text",
+            "isRequired": false,
+            "description": "Provide any suggestions you have for improving job satisfaction."
+          }
+        ],
+        "description": "Questions about your overall job satisfaction."
+      },
+      {
+        "name": "page2",
+        "title": "Work Environment",
+        "elements": [
+          {
+            "name": "work_environment",
+            "type": "rating",
+            "title": "How would you rate your work environment?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your satisfaction with your work environment.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "equipment_quality",
+            "type": "rating",
+            "title": "How would you rate the quality of the equipment you use?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your satisfaction with the quality of the equipment provided.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "workplace_safety",
+            "type": "dropdown",
+            "title": "How safe do you feel in your workplace?",
+            "choices": [
+              "Very Unsafe",
+              "Unsafe",
+              "Neutral",
+              "Safe",
+              "Very Safe"
+            ],
+            "inputType": "text",
+            "isRequired": true,
+            "description": "Select your level of safety in the workplace."
+          },
+          {
+            "name": "sufficient_resources",
+            "type": "boolean",
+            "title": "Do you have sufficient resources to do your job effectively?",
+            "inputType": "text",
+            "labelTrue": "Yes",
+            "isRequired": true,
+            "labelFalse": "No",
+            "description": "Indicate whether you have sufficient resources to perform your job effectively."
+          },
+          {
+            "name": "environment_improvements",
+            "type": "text",
+            "title": "Do you have any suggestions for improving the work environment?",
+            "inputType": "text",
+            "isRequired": false,
+            "description": "Provide any suggestions you have for improving the work environment."
+          }
+        ],
+        "description": "Questions about your work environment."
+      },
+      {
+        "name": "page3",
+        "title": "Management and Leadership",
+        "elements": [
+          {
+            "name": "management_support",
+            "type": "rating",
+            "title": "How would you rate the support you receive from management?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your satisfaction with the support provided by management.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "leadership_effectiveness",
+            "type": "rating",
+            "title": "How would you rate the effectiveness of the leadership team?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your satisfaction with the effectiveness of the leadership team.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "communication_clarity",
+            "type": "dropdown",
+            "title": "How clear is the communication from management?",
+            "choices": [
+              "Very Unclear",
+              "Unclear",
+              "Neutral",
+              "Clear",
+              "Very Clear"
+            ],
+            "inputType": "text",
+            "isRequired": true,
+            "description": "Select your level of satisfaction with the clarity of communication from management."
+          },
+          {
+            "name": "management_approachable",
+            "type": "boolean",
+            "title": "Is management approachable and open to feedback?",
+            "inputType": "text",
+            "labelTrue": "Yes",
+            "isRequired": true,
+            "labelFalse": "No",
+            "description": "Indicate whether management is approachable and open to feedback."
+          },
+          {
+            "name": "leadership_improvements",
+            "type": "text",
+            "title": "Do you have any suggestions for improving management and leadership?",
+            "inputType": "text",
+            "isRequired": false,
+            "description": "Provide any suggestions you have for improving management and leadership."
+          }
+        ],
+        "description": "Questions about management and leadership."
+      },
+      {
+        "name": "page4",
+        "title": "Professional Development",
+        "elements": [
+          {
+            "name": "training_opportunities",
+            "type": "rating",
+            "title": "How would you rate the training opportunities available to you?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your satisfaction with the training opportunities provided.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "career_growth",
+            "type": "rating",
+            "title": "How would you rate the opportunities for career growth?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your satisfaction with the opportunities for career growth.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "skill_development",
+            "type": "dropdown",
+            "title": "How satisfied are you with the skill development programs?",
+            "choices": [
+              "Very Dissatisfied",
+              "Dissatisfied",
+              "Neutral",
+              "Satisfied",
+              "Very Satisfied"
+            ],
+            "inputType": "text",
+            "isRequired": true,
+            "description": "Select your level of satisfaction with the skill development programs."
+          },
+          {
+            "name": "mentorship_programs",
+            "type": "boolean",
+            "title": "Are mentorship programs available and effective?",
+            "inputType": "text",
+            "labelTrue": "Yes",
+            "isRequired": true,
+            "labelFalse": "No",
+            "description": "Indicate whether mentorship programs are available and effective."
+          },
+          {
+            "name": "development_improvements",
+            "type": "text",
+            "title": "Do you have any suggestions for improving professional development opportunities?",
+            "inputType": "text",
+            "isRequired": false,
+            "description": "Provide any suggestions you have for improving professional development opportunities."
+          }
+        ],
+        "description": "Questions about professional development opportunities."
+      },
+      {
+        "name": "page5",
+        "title": "Company Culture",
+        "elements": [
+          {
+            "name": "company_values",
+            "type": "rating",
+            "title": "How well do the company's values align with your personal values?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate the alignment of the company's values with your personal values.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "team_collaboration",
+            "type": "rating",
+            "title": "How would you rate the level of collaboration within your team?",
+            "rateMax": 5,
+            "rateMin": 0,
+            "inputType": "number",
+            "rateCount": 6,
+            "isRequired": true,
+            "description": "Rate your satisfaction with the level of collaboration within your team.",
+            "maxRateDescription": "Excellent",
+            "minRateDescription": "Very Poor"
+          },
+          {
+            "name": "diversity_inclusion",
+            "type": "dropdown",
+            "title": "How satisfied are you with the company's efforts towards diversity and inclusion?",
+            "choices": [
+              "Very Dissatisfied",
+              "Dissatisfied",
+              "Neutral",
+              "Satisfied",
+              "Very Satisfied"
+            ],
+            "inputType": "text",
+            "isRequired": true,
+            "description": "Select your level of satisfaction with the company's efforts towards diversity and inclusion."
+          },
+          {
+            "name": "recognition_programs",
+            "type": "boolean",
+            "title": "Are employee recognition programs effective?",
+            "inputType": "text",
+            "labelTrue": "Yes",
+            "isRequired": true,
+            "labelFalse": "No",
+            "description": "Indicate whether employee recognition programs are effective."
+          },
+          {
+            "name": "culture_improvements",
+            "type": "text",
+            "title": "Do you have any suggestions for improving the company culture?",
+            "inputType": "text",
+            "isRequired": false,
+            "description": "Provide any suggestions you have for improving the company culture."
+          }
+        ],
+        "description": "Questions about the company culture."
+      }
+    ],
+    "title": "Internal HR Survey for Employee Satisfaction",
+    "description": "This survey aims to measure employee satisfaction with their job."
+  }
