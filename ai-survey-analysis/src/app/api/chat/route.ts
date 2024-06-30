@@ -15,9 +15,9 @@ export async function POST(req: Request) {
         content: `You are a helpful assistant analyzing open-ended questions from survey responses.
       
             For each open-ended response, provide the following analysis:
-            1. Summary: A short summary of the answer.
+            1. Summary: A short summary of the answer relative to question.
             2. Sentiment analysis: "Positive", "Neutral" or "Negative"
-            3. Topic Category: Categorize the open-ended answer into a main topic. e.g. "Work Environment complaints"
+            3. Topic Category: Categorize the open-ended answer into a main topic. e.g. "Work Environment complaints" based on both question and answer
             4. Action recommendation: One-sentence suggestion to solve the problem mentioned or improve the situation/effect in the answer.
 
             Format your response as follows for each question:
