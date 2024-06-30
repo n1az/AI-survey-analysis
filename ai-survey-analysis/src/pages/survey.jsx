@@ -13,26 +13,27 @@ import {
   RadioGroup,
   Separator,
   Spinner,
-  Progress
+  Progress,
+  Callout
 } from '@radix-ui/themes';
 import { 
   ChevronLeftIcon,
-  ChevronRightIcon 
+  ChevronRightIcon,
+  InfoCircledIcon
 } from '@radix-ui/react-icons'
 import surveyData from '../data/survey.json';
 
 const Survey = ({ onSubmitSuccess, isLoading }) => {
-
   const [formData, setFormData] = useState({});
   const [openEndedResponses, setOpenEndedResponses] = useState({});
   const [pageIndex, setPageIndex] = useState(0);
+  const [showCallout, setShowCallout] = useState(false);
 
   const calculateProgress = useCallback(() => {
     const totalQuestions = surveyData.pages.reduce((acc, page) => acc + page.elements.length, 0);
     const answeredQuestions = Object.values(formData).reduce((acc, page) => acc + Object.keys(page).length, 0);
     return (answeredQuestions / totalQuestions) * 100;
   }, [formData]);
-
 
   const extractOpenEndedResponses = useCallback(() => {
     const openEnded = {};
@@ -62,35 +63,73 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
         [element]: value
       }
     }));
+    setShowCallout(false);
   }, []);
 
+  const validatePage = useCallback(() => {
+    const currentPage = surveyData.pages[pageIndex];
+    const requiredFields = currentPage.elements.filter(element => element.isRequired);
+    const pageData = formData[currentPage.name] || {};
+
+    for (const field of requiredFields) {
+      if (field.type === 'rating') {
+        if (pageData[field.name] === undefined || pageData[field.name] === null) {
+          return false;
+        }
+      } else if (field.type === 'boolean') {
+        if (pageData[field.name] === undefined) {
+          return false;
+        }
+      } else {
+        if (!pageData[field.name] || (typeof pageData[field.name] === 'string' && pageData[field.name].trim() === '')) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }, [formData, pageIndex]);
+
   const handleNext = useCallback(() => {
-    setPageIndex(prev => Math.min(prev + 1, surveyData.pages.length - 1));
-  }, []);
+    if (validatePage()) {
+      setPageIndex(prev => Math.min(prev + 1, surveyData.pages.length - 1));
+      setShowCallout(false);
+    } else {
+      setShowCallout(true);
+    }
+  }, [validatePage]);
 
   const handlePrevious = useCallback(() => {
     setPageIndex(prev => Math.max(prev - 1, 0));
+    setShowCallout(false);
   }, []);
 
   const handleSubmit = useCallback(() => {
-    const responses = extractOpenEndedResponses();
-    if (typeof onSubmitSuccess === 'function') {
-      onSubmitSuccess(responses);
+    if (validatePage()) {
+      const responses = extractOpenEndedResponses();
+      if (typeof onSubmitSuccess === 'function') {
+        onSubmitSuccess(responses);
+      }
+    } else {
+      setShowCallout(true);
     }
-  }, [extractOpenEndedResponses, onSubmitSuccess]);
+  }, [extractOpenEndedResponses, onSubmitSuccess, validatePage]);
 
   const renderElement = (element) => {
     const elementId = `${surveyData.pages[pageIndex].name}_${element.name}`;
     const currentValue = formData[surveyData.pages[pageIndex].name]?.[element.name] || '';
     
+    const requiredLabel = element.isRequired ? (
+      <Text as="span" color="red" size="2" style={{ verticalAlign: 'super' }}>*</Text>
+    ) : null;
+
     switch (element.type) {
       case 'rating':
         return (
           <Box key={element.name}>
-            <Text size="3" mb="1" htmlFor={elementId}>{element.title}</Text>
+            <Text size="3" mb="1" htmlFor={elementId}>{element.title} {requiredLabel}</Text>
             <Box mt="3">
               <Slider 
-                defaultValue={[formData[surveyData.pages[pageIndex].name]?.[element.name] || 0]}
+                value={[currentValue !== undefined ? currentValue : element.rateMin - 1]}
                 min={element.rateMin}
                 max={element.rateMax}
                 step={1}
@@ -98,13 +137,24 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
                 name={elementId}
                 onValueChange={(value) => handleInputChange(surveyData.pages[pageIndex].name, element.name, value[0])}
               />
+              <Flex justify="between" mt="2">
+                <Text size="1">{element.minRateDescription || 'Lowest'}</Text>
+                <Text size="1">{element.maxRateDescription || 'Highest'}</Text>
+              </Flex>
+              {element.rateDescriptions && currentValue !== undefined && (
+                <Box mt="2">
+                  <Text size="2">
+                    Current rating: {currentValue} - {element.rateDescriptions[currentValue] || ''}
+                  </Text>
+                </Box>
+              )}
             </Box>
           </Box>
         );
       case 'dropdown':
         return (
           <Box key={element.name}>
-            <Text size="3" mb="1" htmlFor={elementId}>{element.title}</Text>
+            <Text size="3" mb="1" htmlFor={elementId}>{element.title} {requiredLabel}</Text>
             <Box mt="2">
               <Select.Root 
                 onValueChange={(value) => handleInputChange(surveyData.pages[pageIndex].name, element.name, value)}
@@ -124,22 +174,25 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
         return (
           <Box key={element.name}>
             <Flex direction="column" gap="2">
-              <Text as="legend" size="3" mb="1">{element.title}</Text>
+              <Text as="legend" size="3" mb="1">{element.title} {requiredLabel}</Text>
               <RadioGroup.Root 
-                onValueChange={(value) => handleInputChange(surveyData.pages[pageIndex].name, element.name, value === 'true')}
-                value={formData[surveyData.pages[pageIndex].name]?.[element.name]?.toString() || ''}
-                name={elementId}
+                onValueChange={(value) => handleInputChange(surveyData.pages[pageIndex].name, element.name, value)}
+                value={currentValue}
               >
-                <Text size="3">
-                  <Flex gap="2" align="center">
-                    <RadioGroup.Item value="true" id={`${elementId}_true`}>Yes</RadioGroup.Item>
-                  </Flex>
-                </Text>
-                <Text size="3">
-                  <Flex gap="2" align="center">
-                    <RadioGroup.Item value="false" id={`${elementId}_false`}>No</RadioGroup.Item>
-                  </Flex>
-                </Text>
+                <Flex gap="2" direction="column">
+                  <Text as="label" size="2">
+                    <Flex gap="2" align="center">
+                      <RadioGroup.Item value="true" id={`${elementId}_true`} />
+                      Yes
+                    </Flex>
+                  </Text>
+                  <Text as="label" size="2">
+                    <Flex gap="2" align="center">
+                      <RadioGroup.Item value="false" id={`${elementId}_false`} />
+                      No
+                    </Flex>
+                  </Text>
+                </Flex>
               </RadioGroup.Root>
             </Flex>
           </Box>
@@ -148,7 +201,7 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
         return (
           <Box key={element.name}>
             <Flex direction="column" gap="2">
-              <Text as="label" size="3" mb="4" htmlFor={elementId}>{element.title}</Text>
+              <Text as="label" size="3" mb="4" htmlFor={elementId}>{element.title} {requiredLabel}</Text>
               <TextArea
                 id={elementId}
                 name={elementId}
@@ -192,6 +245,16 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
           <Progress value={calculateProgress()} variant="surface" color="tomato" highContrast/>
         </Box>
         {renderPage(surveyData.pages[pageIndex])}
+        {showCallout && (
+          <Callout.Root color="red" role="alert" mt="4">
+            <Callout.Icon>
+              <InfoCircledIcon />
+            </Callout.Icon>
+            <Callout.Text>
+              Please fill in all required (*) fields before proceeding.
+            </Callout.Text>
+          </Callout.Root>
+        )}
         <Flex gap="3" p='4' justify="between">
           <Box>
             {pageIndex > 0 && (
