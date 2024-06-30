@@ -9,6 +9,11 @@ import {
   Container,
 } from '@radix-ui/themes';
 
+/**
+ * Determines the glow color based on the sentiment
+ * @param {string} sentiment - The sentiment of the analysis
+ * @returns {string} The CSS variable for the glow color
+ */
 const getGlowColor = (sentiment) => {
   const lowerSentiment = sentiment.toLowerCase();
   if (lowerSentiment.includes('positive')) return 'var(--green-a8)';
@@ -17,11 +22,21 @@ const getGlowColor = (sentiment) => {
   return 'var(--gray-a8)'; // default color
 };
 
-// Helper function to format the question key
+/**
+ * Formats the question key for display
+ * @param {string} key - The original question key
+ * @returns {string} The formatted question key
+ */
 const formatQuestionKey = (key) => {
-    return key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  };
+  return key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
 
+/**
+ * Analysis component to display survey results
+ * @param {Object} props - Component props
+ * @param {Object} props.analysisResults - The analysis results to display
+ * @param {Function} props.onAnswerAnotherSurvey - Callback function to retake the survey
+ */
 const Analysis = ({ analysisResults, onAnswerAnotherSurvey }) => {
   return (
     <Container size="4" my="8">
@@ -51,7 +66,9 @@ const Analysis = ({ analysisResults, onAnswerAnotherSurvey }) => {
           })}
         </Flex>
         <Box mt="6">
-          <Button variant="surface" onClick={onAnswerAnotherSurvey} size="3">Take the Survey again</Button>
+          <Button variant="surface" onClick={onAnswerAnotherSurvey} size="3">
+            Take the Survey again
+          </Button>
         </Box>
       </Flex>
     </Container>

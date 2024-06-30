@@ -1,6 +1,6 @@
 // pages/index.tsx
 import { FC } from 'react';
-import Survey from '../pages/surveyManager';
+import SurveyManager from '../pages/surveyManager';
 import { Text, Box, Container } from '@radix-ui/themes';
 
 const Home: FC = () => {
@@ -12,7 +12,7 @@ const Home: FC = () => {
         </Container>
       </Box>
       <Box style={{ borderRadius: 'var(--radius-3)', alignItems: 'center' }}>
-        <Survey />
+        <SurveyManager />
       </Box>
     </div>
   );
