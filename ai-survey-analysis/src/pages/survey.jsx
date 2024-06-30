@@ -1,51 +1,27 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
-import { 
-  Box, 
-  Flex, 
-  Text, 
-  Slider, 
-  Select, 
-  TextArea, 
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Box,
+  Flex,
+  Text,
+  Slider,
+  Select,
+  TextArea,
   Button,
   Card,
-  Container, 
+  Container,
   RadioGroup,
   Separator,
+  Spinner
 } from '@radix-ui/themes';
 import surveyData from '../data/survey.json';
 
-const Survey = () => {
+const Survey = ({ onSubmitSuccess, isLoading }) => {
+
   const [formData, setFormData] = useState({});
   const [openEndedResponses, setOpenEndedResponses] = useState({});
   const [pageIndex, setPageIndex] = useState(0);
-  const [direction, setDirection] = useState('next');
-  const [response, setResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [analysisResults, setAnalysisResults] = useState({});
 
-  const parseAnalysisResults = (text) => {
-    const results = {};
-    // Split the text by question keys (assuming they are in the format [Question Key])
-    const questionBlocks = text.split(/\[([^\]]+)\]/).filter(Boolean);
-
-    for (let i = 0; i < questionBlocks.length; i += 2) {
-      const questionKey = questionBlocks[i].trim();
-      const analysisText = questionBlocks[i + 1]?.trim();
-
-      if (analysisText) {
-        const lines = analysisText.split('\n');
-        results[questionKey] = {
-          summary: lines.find(l => l.startsWith('Summary:'))?.replace('Summary:', '').trim() || '',
-          sentiment: lines.find(l => l.startsWith('Sentiment analysis:'))?.replace('Sentiment analysis:', '').trim() || '',
-          topicCategory: lines.find(l => l.startsWith('Topic Category:'))?.replace('Topic Category:', '').trim() || '',
-          actionRecommendation: lines.find(l => l.startsWith('Action recommendation:'))?.replace('Action recommendation:', '').trim() || '',
-        };
-      }
-    }
-
-    return results;
-  };
 
   const extractOpenEndedResponses = useCallback(() => {
     const openEnded = {};
@@ -60,15 +36,14 @@ const Survey = () => {
         }
       });
     });
-    setOpenEndedResponses(openEnded);
+    return openEnded;
   }, [formData]);
-  
 
   useEffect(() => {
-    extractOpenEndedResponses();
+    setOpenEndedResponses(extractOpenEndedResponses());
   }, [extractOpenEndedResponses]);
 
-  const handleInputChange = (page, element, value) => {
+  const handleInputChange = useCallback((page, element, value) => {
     setFormData(prevData => ({
       ...prevData,
       [page]: {
@@ -76,98 +51,39 @@ const Survey = () => {
         [element]: value
       }
     }));
-  };
+  }, []);
 
-  const handleNext = () => {
-    setDirection('next');
+  const handleNext = useCallback(() => {
     setPageIndex(prev => Math.min(prev + 1, surveyData.pages.length - 1));
-  };
+  }, []);
 
-  const handlePrevious = () => {
-    setDirection('prev');
+  const handlePrevious = useCallback(() => {
     setPageIndex(prev => Math.max(prev - 1, 0));
-  };
+  }, []);
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
-    setResponse('');
-    setAnalysisResults({});
-
-
-    if (Object.keys(openEndedResponses).length === 0) {
-      console.log("No open-ended questions found in the survey.");
-      setResponse("No open-ended questions were found in the survey.");
-      setIsLoading(false);
-      return;
+  const handleSubmit = useCallback(() => {
+    const responses = extractOpenEndedResponses();
+    if (typeof onSubmitSuccess === 'function') {
+      onSubmitSuccess(responses);
     }
-
-    const prompt = `Analyze this data: ${JSON.stringify(openEndedResponses)}
-    
-    For each open-ended response, provide the following analysis:
-    1. Summary: A short summary of the answer.
-    2. Sentiment analysis: "Positive", "Neutral" or "Negative"
-    3. Topic Category: Categorize the open-ended answer into a main topic. e.g. "Work Environment complaints"
-    4. Action recommendation: One-sentence suggestion to solve the problem mentioned or improve the situation/effect in the answer.
-
-    Format your response as follows for each question:
-    [Question Key]
-    Summary: [Summary]
-    Sentiment analysis: [Sentiment]
-    Topic Category: [Category]
-    Action recommendation: [Recommendation]
-
-    Ensure there's a blank line between each question's analysis.`;
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to submit form');
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let fullResponse = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value);
-        fullResponse += chunk;
-        setResponse(fullResponse);
-      }
-
-      const parsedResults = parseAnalysisResults(fullResponse);
-      setAnalysisResults(parsedResults);
-      console.log("Parsed Analysis Results:", JSON.stringify(parsedResults, null, 2));
-
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setResponse('An error occurred while processing your request.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [extractOpenEndedResponses, onSubmitSuccess]);
 
   const renderElement = (element) => {
+    const elementId = `${surveyData.pages[pageIndex].name}_${element.name}`;
+    
     switch (element.type) {
       case 'rating':
         return (
           <Box key={element.name}>
-            <Text as="label" size="2" mb="1" htmlFor={element.name}>{element.title}</Text>
-            <Box mt="3"> {/* Added top margin */}
+            <Text size="3" mb="1" htmlFor={elementId}>{element.title}</Text>
+            <Box mt="3">
               <Slider 
                 defaultValue={[formData[surveyData.pages[pageIndex].name]?.[element.name] || 0]}
                 min={element.rateMin}
                 max={element.rateMax}
                 step={1}
-                id={element.name}
+                id={elementId}
+                name={elementId}
                 onValueChange={(value) => handleInputChange(surveyData.pages[pageIndex].name, element.name, value[0])}
               />
             </Box>
@@ -176,13 +92,13 @@ const Survey = () => {
       case 'dropdown':
         return (
           <Box key={element.name}>
-            <Text as="label" size="2" mb="1" htmlFor={element.name}>{element.title}</Text>
-            <Box mt="2"> {/* Added top margin to move dropdown to next line */}
+            <Text size="3" mb="1" htmlFor={elementId}>{element.title}</Text>
+            <Box mt="2">
               <Select.Root 
                 onValueChange={(value) => handleInputChange(surveyData.pages[pageIndex].name, element.name, value)}
                 value={formData[surveyData.pages[pageIndex].name]?.[element.name] || ''}
               >
-                <Select.Trigger id={element.name} placeholder="Please Select" /> {/* Added placeholder */}
+                <Select.Trigger id={elementId} name={elementId} placeholder="Please Select" />
                 <Select.Content>
                   {element.choices.map((choice, index) => (
                     <Select.Item key={index} value={choice}>{choice}</Select.Item>
@@ -196,21 +112,22 @@ const Survey = () => {
         return (
           <Box key={element.name}>
             <Flex direction="column" gap="2">
-              <Text as="label" size="2" mb="1">{element.title}</Text>
+              <Text as="legend" size="3" mb="1">{element.title}</Text>
               <RadioGroup.Root 
                 onValueChange={(value) => handleInputChange(surveyData.pages[pageIndex].name, element.name, value === 'true')}
                 value={formData[surveyData.pages[pageIndex].name]?.[element.name]?.toString() || ''}
+                name={elementId}
               >
-                  <Text as="label" size="2">
-                    <Flex gap="2" align="center">
-                      <RadioGroup.Item value="true">Yes</RadioGroup.Item>
-                    </Flex>
-                  </Text>
-                  <Text as="label" size="2">
-                    <Flex gap="2" align="center">
-                      <RadioGroup.Item value="false">No</RadioGroup.Item>
-                    </Flex>
-                  </Text>
+                <Text size="3">
+                  <Flex gap="2" align="center">
+                    <RadioGroup.Item value="true" id={`${elementId}_true`}>Yes</RadioGroup.Item>
+                  </Flex>
+                </Text>
+                <Text size="3">
+                  <Flex gap="2" align="center">
+                    <RadioGroup.Item value="false" id={`${elementId}_false`}>No</RadioGroup.Item>
+                  </Flex>
+                </Text>
               </RadioGroup.Root>
             </Flex>
           </Box>
@@ -219,9 +136,10 @@ const Survey = () => {
         return (
           <Box key={element.name}>
             <Flex direction="column" gap="2">
-              <Text as="label" size="2" mb="4" htmlFor={element.name}>{element.title}</Text>
+              <Text size="3" mb="4" htmlFor={elementId}>{element.title}</Text>
               <TextArea
-                id={element.name}
+                id={elementId}
+                name={elementId}
                 value={formData[surveyData.pages[pageIndex].name]?.[element.name] || ''}
                 onChange={(e) => handleInputChange(surveyData.pages[pageIndex].name, element.name, e.target.value)}
                 size='3'
@@ -237,8 +155,8 @@ const Survey = () => {
   const renderPage = (page) => {
     return (
       <Box p='4'>
-        <Text as="h2" size="6" mb="3">{page.title}</Text>
-        <Text as="p" size="3">{page.description}</Text>
+        <Text as="h2" size="7" mb="3">{page.title}</Text>
+        <Text as="p" size="4">{page.description}</Text>
         <Separator mt="3" mb='5' size="4" />
         <Flex direction="column" gap="6">
           {page.elements.map(renderElement)}
@@ -262,25 +180,21 @@ const Survey = () => {
               <Button variant="surface" onClick={handleNext}>Next</Button>
             ) : (
               <Button variant="surface" onClick={handleSubmit} disabled={isLoading}>
-                {isLoading ? 'Submitting...' : 'Submit'}
+                {isLoading ? (
+                  <Flex align="center" gap="2">
+                    <Spinner size="small" />
+                    Submitting
+                  </Flex>
+                ) : (
+                  'Submit'
+                )}
               </Button>
             )}
           </Box>
         </Flex>
-        {(isLoading || response) && (
-          <Box p="4">
-            <Text as="h3" size="5" mb="2">AI Response:</Text>
-            {isLoading ? (
-              <Text size="3">Generating response...</Text>
-            ) : (
-              <Text size="3">{response}</Text>
-            )}
-          </Box>
-        )}
       </Card>
     </Container>
   );
 };
 
 export default Survey;
-
