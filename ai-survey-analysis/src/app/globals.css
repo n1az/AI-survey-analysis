@@ -1,12 +1,31 @@
 body {
-  margin: 0px !important; /* This keeps the background fixed while scrolling */
+  margin: 0 !important;
+  min-height: 100vh; /* Ensure the body is at least as tall as the viewport */
+  display: flex;
+  flex-direction: column;
+  background-color: #9d87b9;
 }
 
 .radix-themes:where([data-is-root-theme='true']) {
-  max-height: 100vh;
+  flex-grow: 1; /* Allow the theme container to grow and fill the viewport */
   background-image: url('../../public/back.jpg'); /* Replace with your image path */
   background-size: cover;
-  background-position: inherit;
+  background-position: center center; /* Center the background image */
   background-repeat: no-repeat;
   background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Media query for smaller screens */
+@media screen and (max-width: 768px) {
+  .radix-themes:where([data-is-root-theme='true']) {
+    background-size: auto 100vh; /* Force the image to cover the full height */
+    background-position: center top; /* Align to the top on smaller screens */
+  }
+}
+
+/* Ensure all direct children of the theme container can grow to fill available space */
+.radix-themes:where([data-is-root-theme='true']) > * {
+  flex-grow: 1;
 }

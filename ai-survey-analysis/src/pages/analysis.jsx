@@ -24,8 +24,8 @@ const formatQuestionKey = (key) => {
 
 const Analysis = ({ analysisResults, onAnswerAnotherSurvey }) => {
   return (
-    <Container size="4" mt="8">
-      <Flex direction="column" align="center" justify="center" style={{ maxHeight: '100vh' }}>
+    <Container size="4" my="8">
+      <Flex direction="column" align="center" justify="center">
         <Flex wrap="wrap" justify="center" gap="6" width="100%">
           {Object.entries(analysisResults).map(([questionKey, analysis], index) => {
             const glowColor = getGlowColor(analysis.sentiment);

@@ -10,8 +10,13 @@ const roboto = Roboto({
 })
 
 export const metadata: Metadata = {
-  title: 'Ai Survey Analysis',
+  title: 'AI Survey Analysis',
   description: 'Your app description',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' }
+    ]
+  },
 };
 
 export default function RootLayout({

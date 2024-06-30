@@ -186,7 +186,7 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
   };
 
   return (
-    <Container mt='8' size="2" height="60vh" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <Container my='8' mx="4" size="2" height="60vh" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Card p='4' align='center' style={{ width: '100%', maxWidth: '700px', justifyContent: 'center' }}>
         <Box p="4">
           <Progress value={calculateProgress()} variant="surface" color="tomato" highContrast/>
