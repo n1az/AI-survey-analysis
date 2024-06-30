@@ -12,8 +12,13 @@ import {
   Container,
   RadioGroup,
   Separator,
-  Spinner
+  Spinner,
+  Progress
 } from '@radix-ui/themes';
+import { 
+  ChevronLeftIcon,
+  ChevronRightIcon 
+} from '@radix-ui/react-icons'
 import surveyData from '../data/survey.json';
 
 const Survey = ({ onSubmitSuccess, isLoading }) => {
@@ -21,6 +26,12 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
   const [formData, setFormData] = useState({});
   const [openEndedResponses, setOpenEndedResponses] = useState({});
   const [pageIndex, setPageIndex] = useState(0);
+
+  const calculateProgress = useCallback(() => {
+    const totalQuestions = surveyData.pages.reduce((acc, page) => acc + page.elements.length, 0);
+    const answeredQuestions = Object.values(formData).reduce((acc, page) => acc + Object.keys(page).length, 0);
+    return (answeredQuestions / totalQuestions) * 100;
+  }, [formData]);
 
 
   const extractOpenEndedResponses = useCallback(() => {
@@ -70,6 +81,7 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
 
   const renderElement = (element) => {
     const elementId = `${surveyData.pages[pageIndex].name}_${element.name}`;
+    const currentValue = formData[surveyData.pages[pageIndex].name]?.[element.name] || '';
     
     switch (element.type) {
       case 'rating':
@@ -99,7 +111,7 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
                 value={formData[surveyData.pages[pageIndex].name]?.[element.name] || ''}
               >
                 <Select.Trigger id={elementId} name={elementId} placeholder="Please Select" />
-                <Select.Content>
+                <Select.Content position="popper">
                   {element.choices.map((choice, index) => (
                     <Select.Item key={index} value={choice}>{choice}</Select.Item>
                   ))}
@@ -136,14 +148,22 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
         return (
           <Box key={element.name}>
             <Flex direction="column" gap="2">
-              <Text size="3" mb="4" htmlFor={elementId}>{element.title}</Text>
+              <Text as="label" size="3" mb="4" htmlFor={elementId}>{element.title}</Text>
               <TextArea
                 id={elementId}
                 name={elementId}
-                value={formData[surveyData.pages[pageIndex].name]?.[element.name] || ''}
-                onChange={(e) => handleInputChange(surveyData.pages[pageIndex].name, element.name, e.target.value)}
+                value={currentValue}
+                onChange={(e) => {
+                  const newValue = e.target.value.slice(0, 500); // Limit to 500 characters
+                  handleInputChange(surveyData.pages[pageIndex].name, element.name, newValue);
+                }}
                 size='3'
+                maxLength={500}
+                placeholder="Please comment your opinion here..."
               />
+              <Text size="1" style={{ alignSelf: 'flex-end', color: 'var(--gray-11)' }}>
+                {500 - currentValue.length} characters remaining
+              </Text>
             </Flex>
           </Box>
         );
@@ -168,18 +188,25 @@ const Survey = ({ onSubmitSuccess, isLoading }) => {
   return (
     <Container mt='8' size="2" height="60vh" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Card p='4' align='center' style={{ width: '100%', maxWidth: '700px', justifyContent: 'center' }}>
+        <Box p="4">
+          <Progress value={calculateProgress()} variant="surface" color="tomato" highContrast/>
+        </Box>
         {renderPage(surveyData.pages[pageIndex])}
         <Flex gap="3" p='4' justify="between">
           <Box>
             {pageIndex > 0 && (
-              <Button variant="surface" onClick={handlePrevious}>Previous</Button>
+              <Button variant="surface" onClick={handlePrevious} disabled={isLoading}>
+                <ChevronLeftIcon/>Previous
+              </Button>
             )}
           </Box>
           <Box>
             {pageIndex < surveyData.pages.length - 1 ? (
-              <Button variant="surface" onClick={handleNext}>Next</Button>
+              <Button variant="surface" onClick={handleNext}>
+                Next<ChevronRightIcon/>
+              </Button>
             ) : (
-              <Button variant="surface" onClick={handleSubmit} disabled={isLoading}>
+              <Button variant="solid" onClick={handleSubmit} disabled={isLoading}>
                 {isLoading ? (
                   <Flex align="center" gap="2">
                     <Spinner size="small" />

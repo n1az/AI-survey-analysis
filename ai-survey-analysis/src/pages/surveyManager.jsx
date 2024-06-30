@@ -21,6 +21,7 @@ const SurveyManager = () => {
 
       Format your response as follows for each question:
       [Question Key]
+      Question: [Actual Question from the survey]
       Summary: [Summary]
       Sentiment analysis: [Sentiment]
       Topic Category: [Category]
@@ -73,6 +74,7 @@ const SurveyManager = () => {
       if (analysisText) {
         const lines = analysisText.split('\n');
         results[questionKey] = {
+          question: lines.find(l => l.startsWith('Question:'))?.replace('Question:', '').trim() || '',
           summary: lines.find(l => l.startsWith('Summary:'))?.replace('Summary:', '').trim() || '',
           sentiment: lines.find(l => l.startsWith('Sentiment analysis:'))?.replace('Sentiment analysis:', '').trim() || '',
           topicCategory: lines.find(l => l.startsWith('Topic Category:'))?.replace('Topic Category:', '').trim() || '',
