@@ -11,23 +11,7 @@ const SurveyManager = () => {
   const handleSurveySubmit = useCallback(async (openEndedResponses) => {
     setIsLoading(true);
     try {
-      const prompt = `Analyze this data: ${JSON.stringify(openEndedResponses)}
-      
-      For each open-ended response, provide the following analysis:
-      1. Summary: A short summary of the answer.
-      2. Sentiment analysis: "Positive", "Neutral" or "Negative"
-      3. Topic Category: Categorize the open-ended answer into a main topic. e.g. "Work Environment complaints"
-      4. Action recommendation: One-sentence suggestion to solve the problem mentioned or improve the situation/effect in the answer.
-
-      Format your response as follows for each question:
-      [Question Key]
-      Question: [Actual Question from the survey]
-      Summary: [Summary]
-      Sentiment analysis: [Sentiment]
-      Topic Category: [Category]
-      Action recommendation: [Recommendation]
-
-      Ensure there's a blank line between each question's analysis.`;
+      const prompt = `Analyze this data: ${JSON.stringify(openEndedResponses)}`
 
       const res = await fetch('/api/chat', {
         method: 'POST',
