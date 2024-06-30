@@ -80,6 +80,7 @@ const SurveyManager = () => {
         };
       }
     }
+    console.log(results)
     return results;
   };
 
