@@ -4,15 +4,23 @@ import Survey from './survey';
 import Analysis from './analysis';
 
 const SurveyManager = () => {
+  // State to control whether to show the survey or analysis
   const [showSurvey, setShowSurvey] = useState(true);
+  // State to store the analysis results
   const [analysisResults, setAnalysisResults] = useState({});
+  // State to manage loading state during form submission
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Handles the survey submission and processes the response
+   * @param {Object} openEndedResponses - The survey responses
+   */
   const handleSurveySubmit = useCallback(async (openEndedResponses) => {
     setIsLoading(true);
     try {
-      const prompt = `Analyze this data: ${JSON.stringify(openEndedResponses)}`
+      const prompt = `Analyze this data: ${JSON.stringify(openEndedResponses)}`;
 
+      // Send survey data to API for analysis
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -25,6 +33,7 @@ const SurveyManager = () => {
         throw new Error('Failed to submit form');
       }
 
+      // Read and process the streaming response
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let fullResponse = '';
@@ -47,6 +56,11 @@ const SurveyManager = () => {
     }
   }, []);
 
+  /**
+   * Parses the analysis results from the API response
+   * @param {string} text - The raw text response from the API
+   * @returns {Object} The parsed analysis results
+   */
   const parseAnalysisResults = (text) => {
     const results = {};
     const questionBlocks = text.split(/\[([^\]]+)\]/).filter(Boolean);
@@ -66,17 +80,17 @@ const SurveyManager = () => {
         };
       }
     }
-    console.log(results)
     return results;
   };
 
+  /**
+   * Resets the component state to allow answering another survey
+   */
   const handleAnswerAnotherSurvey = useCallback(() => {
     setShowSurvey(true);
     setAnalysisResults({});
   }, []);
 
-
-  
   return (
     <div>
       {showSurvey ? (
