@@ -4,7 +4,7 @@ body {
 
 .radix-themes:where([data-is-root-theme='true']) {
   max-height: 100vh;
-  background-image: url('../../public/background.jpg'); /* Replace with your image path */
+  background-image: url('../../public/back.jpg'); /* Replace with your image path */
   background-size: cover;
   background-position: inherit;
   background-repeat: no-repeat;
