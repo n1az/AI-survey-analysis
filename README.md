@@ -51,9 +51,9 @@ We will develop a solution to analyze open-ended survey responses using AI. we w
 ## :sparkles: Features ##
 
 :heavy_check_mark: Dynamic Survey\
-![Survey Page](ai-survey-analysis/public/homepage.png)
+![Survey Page](public/homepage.png)
 :heavy_check_mark: AI Analysis\
-![Analysis Page](ai-survey-analysis/public/Analysis.png)
+![Analysis Page](public/Analysis.png)
 :heavy_check_mark: TBA
 
 ## :rocket: Technologies ##
