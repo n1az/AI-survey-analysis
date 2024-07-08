@@ -51,7 +51,9 @@ We will develop a solution to analyze open-ended survey responses using AI. we w
 ## :sparkles: Features ##
 
 :heavy_check_mark: Dynamic Survey\
+![Survey Page](ai-survey-analysis/public/homepage.png)
 :heavy_check_mark: AI Analysis\
+![Analysis Page](ai-survey-analysis/public/Analysis.png)
 :heavy_check_mark: TBA
 
 ## :rocket: Technologies ##
@@ -76,7 +78,7 @@ Before starting, you need to have [Git](https://git-scm.com) and [Node](https://
 $ git clone https://github.com/n1az/ai-survey-analysis
 
 # Access
-$ cd ai-survey-analysis
+$ cd ai-survey-analysis/ai-survey-analysis
 
 # Install dependencies
 $ npm install
