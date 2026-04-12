@@ -20,7 +20,7 @@ jobs:
       - name: Check for high severity alerts
         id: check-alerts
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           ALERTS=$(gh api /repos/${{ github.repository }}/dependabot/alerts \
             --jq '[.[] | select(.state=="open" and .security_advisory.severity=="high" or .security_advisory.severity=="critical")]')
@@ -41,7 +41,7 @@ jobs:
         if: steps.check-alerts.outputs.alert_count > 0
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           commit-message: "fix: auto-patch high severity vulnerabilities"
           title: "🔒 Security: Auto-fix high severity vulnerabilities"
           body: |
