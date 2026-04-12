@@ -1,0 +1,61 @@
+# .github/workflows/auto-fix-vulnerabilities.yml
+name: Auto-fix High Severity Vulnerabilities
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Hourly check
+  workflow_dispatch:
+
+jobs:
+  fix-vulnerabilities:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      security-events: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for high severity alerts
+        id: check-alerts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ALERTS=$(gh api /repos/${{ github.repository }}/dependabot/alerts \
+            --jq '[.[] | select(.state=="open" and .security_advisory.severity=="high" or .security_advisory.severity=="critical")]')
+          COUNT=$(echo $ALERTS | jq 'length')
+          echo "alert_count=$COUNT" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        if: steps.check-alerts.outputs.alert_count > 0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Auto-fix with npm audit
+        if: steps.check-alerts.outputs.alert_count > 0
+        run: npm audit fix --force
+
+      - name: Create Pull Request
+        if: steps.check-alerts.outputs.alert_count > 0
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "fix: auto-patch high severity vulnerabilities"
+          title: "🔒 Security: Auto-fix high severity vulnerabilities"
+          body: |
+            ## Automated Security Fix
+            
+            This PR was automatically created to address **high/critical severity** 
+            vulnerability alerts detected by GitHub Dependabot.
+            
+            ### What changed
+            - Ran `npm audit fix --force` to patch vulnerable packages
+            
+            ### ⚠️ Review before merging
+            - Check for breaking changes in updated packages
+            - Run your test suite
+          branch: "security/auto-fix-vulnerabilities"
+          labels: "security,automated"
+          delete-branch: true
